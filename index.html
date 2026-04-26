@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixed Bias BJT Circuit · Interactive Simulator</title>
+    <title>Fixed Bias BJT Circuit · Base Bias Configuration</title>
     
-    <!-- KaTeX for beautiful math -->
+    <!-- KaTeX -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
@@ -14,436 +14,149 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', 'Times New Roman', serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px 20px;
-            min-height: 100vh;
-        }
-
-        .textbook {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: white;
-            padding: 30px 40px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
-            animation: rotate 20s linear infinite;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            font-weight: 700;
-            margin-bottom: 8px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .header p {
-            color: #a0c0ff;
-            font-size: 1.2em;
-            position: relative;
-            z-index: 1;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 0;
-        }
-
-        @media (max-width: 1000px) {
-            .grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .left-col {
-            padding: 30px;
-            background: white;
-            border-right: 1px solid #e2e8f0;
-        }
-
-        .right-col {
-            padding: 30px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
-        }
-
-        .section-title {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 30px;
-            display: inline-block;
-            margin-bottom: 25px;
-            font-weight: 600;
-            font-size: 0.95em;
-        }
-
-        .image-container {
-            background: #f8fafc;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid #e2e8f0;
-            text-align: center;
-        }
-
-        .circuit-image {
-            max-width: 100%;
-            height: auto;
-            border-radius: 12px;
-        }
-
-        .fig-caption {
-            text-align: center;
-            margin-top: 15px;
-            color: #64748b;
-            font-style: italic;
-        }
-
-        .waveform-container {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 20px;
-            padding: 20px;
-            margin: 25px 0;
-        }
-
-        .waveform-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .phase-badge {
-            background: #c41e3a;
-            color: white;
-            padding: 5px 15px;
-            border-radius: 30px;
-            font-size: 0.9em;
-            font-weight: 600;
-        }
-
-        .waveform-canvas {
-            width: 100%;
-            height: 180px;
-            background: white;
-            border-radius: 12px;
-        }
-
-        .legend {
-            display: flex;
-            gap: 30px;
-            justify-content: center;
-            margin-top: 15px;
-        }
-
-        .legend-color {
-            width: 20px;
-            height: 3px;
-            border-radius: 3px;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; min-height: 100vh; }
+        .textbook { max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.95); border-radius: 24px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 40px; position: relative; overflow: hidden; }
+        .header::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%); animation: rotate 20s linear infinite; }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .header h1 { font-size: 2.5em; margin-bottom: 8px; position: relative; z-index: 1; }
+        .header p { color: #a0c0ff; font-size: 1.2em; position: relative; z-index: 1; }
+        .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0; }
+        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
+        .left-col { padding: 30px; background: white; border-right: 1px solid #e2e8f0; }
+        .right-col { padding: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); }
+        .section-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 30px; display: inline-block; margin-bottom: 25px; font-weight: 600; font-size: 0.95em; }
+        .image-container { background: #f8fafc; border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid #e2e8f0; text-align: center; }
+        .circuit-image { max-width: 100%; height: auto; border-radius: 12px; }
+        .fig-caption { text-align: center; margin-top: 15px; color: #64748b; font-style: italic; }
+        .waveform-container { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 20px; margin: 25px 0; }
+        .waveform-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .phase-badge { background: #c41e3a; color: white; padding: 5px 15px; border-radius: 30px; font-size: 0.9em; font-weight: 600; }
+        .waveform-canvas { width: 100%; height: 180px; background: white; border-radius: 12px; }
+        .legend { display: flex; gap: 30px; justify-content: center; margin-top: 15px; }
+        .legend-color { width: 20px; height: 3px; border-radius: 3px; }
         .legend-color.input { background: #3b82f6; }
         .legend-color.output { background: #ef4444; }
-
-        .fixed-params {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 20px;
-            padding: 20px;
-            color: white;
-        }
-
-        .params-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .param-card {
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 15px;
-            text-align: center;
-        }
-
-        .param-value {
-            font-size: 1.5em;
-            font-weight: 700;
-        }
-
-        .slider-panel {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .slider-group {
-            margin-bottom: 25px;
-        }
-
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 10px;
-            font-weight: 600;
-        }
-
-        .slider {
-            width: 100%;
-            height: 8px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            border-radius: 4px;
-            -webkit-appearance: none;
-        }
-
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 24px;
-            height: 24px;
-            background: white;
-            border-radius: 50%;
-            border: 2px solid #667eea;
-            cursor: pointer;
-        }
-
-        .value-display {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 4px 12px;
-            border-radius: 30px;
-        }
-
-        .results-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .result-item {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 15px;
-            border-radius: 15px;
-            border-left: 4px solid #667eea;
-        }
-
-        .result-item .label {
-            font-size: 0.8em;
-            color: #64748b;
-        }
-
-        .result-item .value {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #1e293b;
-        }
-
-        .steps-card {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            max-height: 550px;
-            overflow-y: auto;
-        }
-
-        .step {
-            padding: 15px 0;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .step-header {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 10px;
-        }
-
-        .step-num {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9em;
-            font-weight: 700;
-        }
-
-        .katex-block {
-            background: #f8fafc;
-            padding: 12px 16px;
-            border-radius: 12px;
-            margin: 10px 0 0 43px;
-            border-left: 4px solid #667eea;
-            overflow-x: auto;
-        }
-
-        .note {
-            background: #fef3c7;
-            border-left: 4px solid #f59e0b;
-            padding: 15px;
-            margin-top: 20px;
-            border-radius: 12px;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            width: 100%;
-            font-weight: 600;
-            font-size: 1em;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(102,126,234,0.4);
-        }
-
-        footer {
-            background: #1e293b;
-            color: #94a3b8;
-            padding: 20px 40px;
-            text-align: center;
-        }
+        .fixed-params { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; color: white; }
+        .params-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .param-card { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; text-align: center; }
+        .param-value { font-size: 1.5em; font-weight: 700; }
+        .slider-panel { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; }
+        .slider-group { margin-bottom: 25px; }
+        .slider-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; }
+        .slider { width: 100%; height: 8px; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; -webkit-appearance: none; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border-radius: 50%; border: 2px solid #667eea; cursor: pointer; }
+        .value-display { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 30px; }
+        .results-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; }
+        .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
+        .result-item { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 15px; border-left: 4px solid #667eea; }
+        .result-item .label { font-size: 0.8em; color: #64748b; }
+        .result-item .value { font-size: 1.3em; font-weight: 700; color: #1e293b; }
+        .steps-card { background: white; border-radius: 20px; padding: 25px; max-height: 550px; overflow-y: auto; }
+        .step { padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
+        .step-header { display: flex; gap: 15px; margin-bottom: 10px; }
+        .step-num { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; font-weight: 700; }
+        .katex-block { background: #f8fafc; padding: 12px 16px; border-radius: 12px; margin: 10px 0 0 43px; border-left: 4px solid #667eea; overflow-x: auto; }
+        .note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 20px; border-radius: 12px; }
+        .btn { padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 30px; cursor: pointer; width: 100%; font-weight: 600; font-size: 1em; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
+        footer { background: #1e293b; color: #94a3b8; padding: 20px 40px; text-align: center; }
     </style>
 </head>
 <body>
     <div class="textbook">
         <div class="header">
             <h1><i class="fas fa-microchip"></i> Fixed Bias BJT Circuit</h1>
-            <p><i class="fas fa-wave-square"></i> Common Emitter Configuration · Base Bias Method</p>
+            <p><i class="fas fa-wave-square"></i> Base Bias Configuration · Common Emitter Amplifier</p>
         </div>
 
         <div class="grid">
             <div class="left-col">
                 <div class="section-title">
-                    <i class="fas fa-image"></i> FIGURE · Fixed Bias Circuit
+                    <i class="fas fa-image"></i> FIGURE 5.12 · Fixed Bias (Base Bias) Circuit
                 </div>
                 
                 <div class="image-container">
-                    <img class="circuit-image" src="images/circuit.png" alt="Fixed Bias Circuit"
-                         onerror="this.src='https://via.placeholder.com/600x400?text=Fixed+Bias+Circuit:+VCC,+RB,+RC,+Transistor'">
+                    <img class="circuit-image" src="images/circuit.png" alt="Fixed Bias Circuit with RB and RC"
+                         onerror="this.src='https://via.placeholder.com/600x400?text=Fixed+Bias+Circuit:+VCC=28V,+RB,+RC,+Transistor'">
                     <div class="fig-caption">
-                        <i class="fas fa-book-open"></i> Figure: Fixed Bias Circuit with R<sub>B</sub>, R<sub>C</sub>, and V<sub>CC</sub> = 28V
+                        <i class="fas fa-book-open"></i> Figure 1: Fixed Bias Circuit with R<sub>B</sub>, R<sub>C</sub>, and V<sub>CC</sub> = 28V
                     </div>
                 </div>
 
                 <div class="waveform-container">
                     <div class="waveform-header">
-                        <span class="waveform-title"><i class="fas fa-chart-line"></i> Input/Output Waveforms</span>
+                        <span class="waveform-title"><i class="fas fa-chart-line"></i> Input/Output Waveforms (Common Emitter)</span>
                         <span class="phase-badge" id="phaseBadge"><i class="fas fa-arrow-rotate-left"></i> 180° Phase Shift</span>
                     </div>
                     <canvas id="waveformCanvas" class="waveform-canvas" width="500" height="180"></canvas>
                     <div class="legend">
-                        <div class="legend-item"><div class="legend-color input"></div><span>Input Signal (V<sub>in</sub>)</span></div>
-                        <div class="legend-item"><div class="legend-color output"></div><span>Output Signal (V<sub>out</sub>)</span></div>
+                        <div class="legend-item"><div class="legend-color input"></div><span>Input Signal V<sub>in</sub> (Base)</span></div>
+                        <div class="legend-item"><div class="legend-color output"></div><span>Output Signal V<sub>out</sub> (Collector)</span></div>
                     </div>
                 </div>
 
                 <div class="fixed-params">
                     <h3><i class="fas fa-cogs"></i> Fixed Parameters</h3>
                     <div class="params-grid">
-                        <div class="param-card"><div class="param-label">V<sub>CC</sub></div><div class="param-value">28 V</div></div>
-                        <div class="param-card"><div class="param-label">R<sub>C</sub></div><div class="param-value">4.7 kΩ</div></div>
+                        <div class="param-card"><div class="param-label">V<sub>CC</sub> (Supply)</div><div class="param-value">28 V</div></div>
+                        <div class="param-card"><div class="param-label">R<sub>C</sub> (Collector)</div><div class="param-value">4.7 kΩ</div></div>
                     </div>
                 </div>
             </div>
 
             <div class="right-col">
-                <div class="section-title"><i class="fas fa-sliders-h"></i> Interactive Analysis</div>
+                <div class="section-title"><i class="fas fa-sliders-h"></i> Interactive Analysis · Fixed Bias</div>
 
                 <div class="slider-panel">
                     <h3><i class="fas fa-tachometer-alt"></i> Control Panel</h3>
 
                     <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-chart-bar"></i> Current Gain <strong>β</strong></span><span class="value-display" id="betaValue">110</span></div>
+                        <div class="slider-header"><span><i class="fas fa-chart-bar"></i> Current Gain <strong>β</strong> (h<sub>FE</sub>)</span><span class="value-display" id="betaValue">110</span></div>
                         <input type="range" id="betaSlider" class="slider" min="50" max="300" value="110" step="1">
                     </div>
 
                     <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-bolt"></i> Base Resistor <strong>R<sub>B</sub></strong></span><span class="value-display" id="rbValue">200 kΩ</span></div>
+                        <div class="slider-header"><span><i class="fas fa-resistance"></i> Base Resistor <strong>R<sub>B</sub></strong></span><span class="value-display" id="rbValue">200 kΩ</span></div>
                         <input type="range" id="rbSlider" class="slider" min="50" max="500" value="200" step="5">
                     </div>
 
                     <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-car-battery"></i> Base-Emitter <strong>V<sub>BE</sub></strong></span><span class="value-display" id="vbeValue">0.70 V</span></div>
+                        <div class="slider-header"><span><i class="fas fa-car-battery"></i> Base-Emitter Voltage <strong>V<sub>BE</sub></strong> (Silicon)</span><span class="value-display" id="vbeValue">0.70 V</span></div>
                         <input type="range" id="vbeSlider" class="slider" min="0.5" max="0.9" value="0.7" step="0.01">
                     </div>
 
-                    <button class="btn" onclick="resetSliders()"><i class="fas fa-undo-alt"></i> Reset to Default</button>
+                    <button class="btn" onclick="resetSliders()"><i class="fas fa-undo-alt"></i> Reset to Default Values</button>
                 </div>
 
                 <div class="results-card">
-                    <h3><i class="fas fa-calculator"></i> Calculated Values</h3>
+                    <h3><i class="fas fa-calculator"></i> Calculated Values (Fixed Bias)</h3>
                     <div class="results-grid" id="resultsGrid"></div>
                 </div>
 
                 <div class="steps-card" id="stepsContainer">
-                    <h3><i class="fas fa-list-ol"></i> Step-by-Step Solution</h3>
+                    <h3><i class="fas fa-list-ol"></i> Step-by-Step Solution (Fixed Bias Method)</h3>
                 </div>
             </div>
         </div>
 
-        <footer><i class="fas fa-microchip"></i> Fixed Bias BJT Simulator · V<sub>T</sub> = 26mV at 25°C</footer>
+        <footer>
+            <i class="fas fa-microchip"></i> Fixed Bias (Base Bias) BJT Simulator · V<sub>T</sub> = 26mV at 25°C
+            <br><small>Note: Fixed bias is simple but thermally unstable · Voltage gain A<sub>v</sub> = -g<sub>m</sub>R<sub>C</sub></small>
+        </footer>
     </div>
 
     <script>
-        // Fixed parameters
-        const VCC = 28;
-        const RC = 4.7;
-        const VT = 0.026;
+        // Fixed Bias Circuit Parameters
+        const VCC = 28;      // Supply voltage (volts)
+        const RC = 4.7;      // Collector resistor (kΩ)
+        const VT = 0.026;    // Thermal voltage at 25°C (26mV)
         
-        // Variable parameters
-        let BETA = 110;
-        let RB = 200;      // kΩ
-        let VBE = 0.7;
+        // Variable parameters (user adjustable)
+        let BETA = 110;      // Current gain
+        let RB = 200;        // Base resistor (kΩ)
+        let VBE = 0.7;       // Base-emitter voltage (volts)
 
         const canvas = document.getElementById('waveformCanvas');
         const ctx = canvas.getContext('2d');
@@ -462,7 +175,7 @@
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Grid
+            // Draw grid
             ctx.strokeStyle = '#e2e8f0';
             ctx.lineWidth = 0.5;
             for (let i = 0; i <= 5; i++) {
@@ -476,7 +189,7 @@
                 ctx.stroke();
             }
             
-            // Input (blue)
+            // Input waveform (blue) - base signal
             ctx.beginPath();
             ctx.strokeStyle = '#3b82f6';
             ctx.lineWidth = 3;
@@ -488,7 +201,7 @@
             }
             ctx.stroke();
             
-            // Output (red) with phase shift
+            // Output waveform (red) - collector signal with 180° phase shift
             ctx.beginPath();
             ctx.strokeStyle = '#ef4444';
             ctx.lineWidth = 3;
@@ -500,101 +213,136 @@
             }
             ctx.stroke();
             
+            // Labels
             ctx.font = 'bold 12px Inter, sans-serif';
             ctx.fillStyle = '#3b82f6';
-            ctx.fillText('Vin', 10, 40);
+            ctx.fillText('V_in (Base)', 10, 40);
             ctx.fillStyle = '#ef4444';
-            ctx.fillText('Vout', 10, 140);
+            ctx.fillText('V_out (Collector)', 10, 140);
             ctx.font = 'bold 14px Inter, sans-serif';
             ctx.fillStyle = '#1e293b';
-            ctx.fillText(`|Av| = ${gain.toFixed(1)}`, canvas.width - 110, 30);
+            ctx.fillText(`|A_v| = ${gain.toFixed(1)}`, canvas.width - 120, 30);
         }
 
         function calculateValues() {
-            // Base Current: IB = (VCC - VBE) / RB
+            // Step 1: Base Current IB = (VCC - VBE) / RB
             const IB_mA = (VCC - VBE) / RB;  // mA
-            const IB_uA = IB_mA * 1000;
+            const IB_uA = IB_mA * 1000;       // μA
             
-            // Collector Current: IC = β * IB
-            const IC = BETA * IB_mA;
+            // Step 2: Collector Current IC = β × IB
+            const IC = BETA * IB_mA;           // mA
             
-            // Emitter Current: IE ≈ IC
-            const IE = IC;
+            // Step 3: Emitter Current IE ≈ IC (for common emitter)
+            const IE = IC;                     // mA
             
-            // Collector Voltage: VC = VCC - IC * RC
-            const VC = VCC - (IC * RC);
+            // Step 4: Collector Voltage VC = VCC - IC × RC
+            const VC = VCC - (IC * RC);        // volts
             
-            // Collector-Emitter Voltage: VCE = VC - VE (VE = 0 in fixed bias)
-            const VCE = VC;
+            // Step 5: Collector-Emitter Voltage VCE = VC - VE
+            // For fixed bias, VE = 0 (emitter directly grounded)
+            const VCE = VC;                    // volts
             
-            // Transconductance: gm = IC / VT
-            const gm = IC / VT;
+            // Step 6: Transconductance gm = IC / VT
+            const gm = IC / VT;                // Siemens
             
-            // Voltage Gain: Av = -gm * RC
-            const Av = -gm * RC;
+            // Step 7: Voltage Gain Av = -gm × RC
+            const Av = -gm * RC;               // V/V (negative = 180° phase shift)
             
-            return { IB_uA, IB_mA, IC, IE, VC, VCE, gm, Av, RB };
+            // Also calculate power dissipation
+            const PC = VCE * IC;               // mW (collector power)
+            
+            return { IB_uA, IB_mA, IC, IE, VC, VCE, gm, Av, RB, PC };
         }
 
         function updateResults(vals) {
             document.getElementById('resultsGrid').innerHTML = `
-                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> I<sub>B</sub></div><div class="value">${vals.IB_uA.toFixed(2)} <span class="unit">μA</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> I<sub>C</sub></div><div class="value">${vals.IC.toFixed(3)} <span class="unit">mA</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> I<sub>E</sub></div><div class="value">${vals.IE.toFixed(3)} <span class="unit">mA</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> V<sub>C</sub></div><div class="value">${vals.VC.toFixed(2)} <span class="unit">V</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> V<sub>CE</sub></div><div class="value">${vals.VCE.toFixed(2)} <span class="unit">V</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-wave-square"></i> g<sub>m</sub></div><div class="value">${vals.gm.toFixed(3)} <span class="unit">S</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> A<sub>v</sub></div><div class="value">${vals.Av.toFixed(2)} <span class="unit">V/V</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-resistance"></i> R<sub>B</sub></div><div class="value">${vals.RB} <span class="unit">kΩ</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Base Current I<sub>B</sub></div><div class="value">${vals.IB_uA.toFixed(2)} <span class="unit">μA</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Collector Current I<sub>C</sub></div><div class="value">${vals.IC.toFixed(3)} <span class="unit">mA</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Emitter Current I<sub>E</sub></div><div class="value">${vals.IE.toFixed(3)} <span class="unit">mA</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> Collector Voltage V<sub>C</sub></div><div class="value">${vals.VC.toFixed(2)} <span class="unit">V</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> V<sub>CE</sub> (Collector-Emitter)</div><div class="value">${vals.VCE.toFixed(2)} <span class="unit">V</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-wave-square"></i> Transconductance g<sub>m</sub></div><div class="value">${vals.gm.toFixed(3)} <span class="unit">S</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> Voltage Gain A<sub>v</sub></div><div class="value">${vals.Av.toFixed(2)} <span class="unit">V/V</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-resistance"></i> Base Resistor R<sub>B</sub></div><div class="value">${vals.RB} <span class="unit">kΩ</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-fire"></i> Power Dissipation P<sub>C</sub></div><div class="value">${vals.PC.toFixed(2)} <span class="unit">mW</span></div></div>
             `;
         }
 
         function generateSteps(vals) {
             return `
-                <div class="step"><div class="step-header"><span class="step-num">1</span><span>Base Current \\(I_B\\)</span></div>
-                <div class="katex-block">\\[I_B = \\frac{V_{CC} - V_{BE}}{R_B} = \\frac{${VCC} - ${VBE}}{${RB}} = ${vals.IB_uA.toFixed(2)} \\text{ μA}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">1</span><span>Calculate Base Current \\(I_B\\)</span></div>
+                    <div class="katex-block">\\[I_B = \\frac{V_{CC} - V_{BE}}{R_B} = \\frac{${VCC} - ${VBE}}{${RB} \\times 10^3} = ${vals.IB_uA.toFixed(2)} \\text{ μA}\\]</div>
+                    <div class="katex-block">\\[I_B = ${vals.IB_mA.toFixed(5)} \\text{ mA}\\]</div>
+                </div>
                 
-                <div class="step"><div class="step-header"><span class="step-num">2</span><span>Collector Current \\(I_C\\)</span></div>
-                <div class="katex-block">\\[I_C = \\beta \\times I_B = ${BETA} \\times ${vals.IB_mA.toFixed(5)} = ${vals.IC.toFixed(3)} \\text{ mA}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">2</span><span>Calculate Collector Current \\(I_C\\)</span></div>
+                    <div class="katex-block">\\[I_C = \\beta \\times I_B = ${BETA} \\times ${vals.IB_mA.toFixed(5)} = ${vals.IC.toFixed(3)} \\text{ mA}\\]</div>
+                </div>
                 
-                <div class="step"><div class="step-header"><span class="step-num">3</span><span>Collector Voltage \\(V_C\\)</span></div>
-                <div class="katex-block">\\[V_C = V_{CC} - I_C R_C = ${VCC} - (${vals.IC.toFixed(3)} \\times ${RC}) = ${vals.VC.toFixed(2)} \\text{ V}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">3</span><span>Calculate Collector Voltage \\(V_C\\)</span></div>
+                    <div class="katex-block">\\[V_C = V_{CC} - I_C R_C = ${VCC} - (${vals.IC.toFixed(3)} \\times ${RC}) = ${vals.VC.toFixed(2)} \\text{ V}\\]</div>
+                </div>
                 
-                <div class="step"><div class="step-header"><span class="step-num">4</span><span>Collector-Emitter Voltage \\(V_{CE}\\)</span></div>
-                <div class="katex-block">\\[V_{CE} = V_C - V_E = ${vals.VC.toFixed(2)} - 0 = ${vals.VCE.toFixed(2)} \\text{ V}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">4</span><span>Calculate Collector-Emitter Voltage \\(V_{CE}\\)</span></div>
+                    <div class="katex-block">\\[V_{CE} = V_C - V_E = ${vals.VC.toFixed(2)} - 0 = ${vals.VCE.toFixed(2)} \\text{ V}\\]</div>
+                    <div class="katex-block">\\[\\text{(Note: In fixed bias, emitter is directly grounded, so } V_E = 0\\text{)}\\]</div>
+                </div>
                 
-                <div class="step"><div class="step-header"><span class="step-num">5</span><span>Transconductance \\(g_m\\)</span></div>
-                <div class="katex-block">\\[g_m = \\frac{I_C}{V_T} = \\frac{${vals.IC.toFixed(3)} \\text{ mA}}{26 \\text{ mV}} = ${vals.gm.toFixed(3)} \\text{ S}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">5</span><span>Calculate Transconductance \\(g_m\\)</span></div>
+                    <div class="katex-block">\\[g_m = \\frac{I_C}{V_T} = \\frac{${vals.IC.toFixed(3)} \\text{ mA}}{26 \\text{ mV}} = ${vals.gm.toFixed(3)} \\text{ S}\\]</div>
+                </div>
                 
-                <div class="step"><div class="step-header"><span class="step-num">6</span><span>Voltage Gain \\(A_v\\)</span></div>
-                <div class="katex-block">\\[A_v = -g_m R_C = -${vals.gm.toFixed(3)} \\times ${RC} = ${vals.Av.toFixed(2)} \\text{ V/V}\\]</div></div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">6</span><span>Calculate Voltage Gain \\(A_v\\)</span></div>
+                    <div class="katex-block">\\[A_v = -g_m R_C = -${vals.gm.toFixed(3)} \\times ${RC} = ${vals.Av.toFixed(2)} \\text{ V/V}\\]</div>
+                    <div class="katex-block">\\[\\text{Negative sign indicates 180° phase shift between input and output}\\]</div>
+                </div>
                 
-                <div class="note"><i class="fas fa-info-circle"></i> <strong>Fixed Bias Characteristics:</strong><br>
-                • Simple circuit with only one base resistor<br>
-                • Highly sensitive to β variations<br>
-                • Not suitable for mass production due to thermal instability<br>
-                • Negative gain = 180° phase shift</div>
+                <div class="step">
+                    <div class="step-header"><span class="step-num">7</span><span>Calculate Power Dissipation</span></div>
+                    <div class="katex-block">\\[P_C = V_{CE} \\times I_C = ${vals.VCE.toFixed(2)} \\times ${vals.IC.toFixed(3)} = ${vals.PC.toFixed(2)} \\text{ mW}\\]</div>
+                </div>
+                
+                <div class="note">
+                    <i class="fas fa-info-circle"></i> <strong>Fixed Bias (Base Bias) Characteristics:</strong><br>
+                    • <strong>Advantages:</strong> Simple circuit, few components, easy to design<br>
+                    • <strong>Disadvantages:</strong> Highly sensitive to β variations, thermally unstable, not suitable for mass production<br>
+                    • <strong>Applications:</strong> Basic educational circuits, switching applications<br>
+                    • <strong>Key formula:</strong> \\(I_B = (V_{CC} - V_{BE})/R_B\\) and \\(I_C = \\beta I_B\\)
+                </div>
             `;
         }
 
         function updateAll() {
+            // Update displayed values
             document.getElementById('betaValue').innerText = BETA;
             document.getElementById('rbValue').innerText = RB + ' kΩ';
             document.getElementById('vbeValue').innerText = VBE.toFixed(2) + ' V';
             
+            // Calculate and update all results
             const vals = calculateValues();
             updateResults(vals);
-            document.getElementById('stepsContainer').innerHTML = `<h3><i class="fas fa-list-ol"></i> Step-by-Step Solution</h3>${generateSteps(vals)}`;
+            document.getElementById('stepsContainer').innerHTML = `<h3 style="margin-bottom:20px;"><i class="fas fa-list-ol"></i> Step-by-Step Solution (Fixed Bias)</h3>${generateSteps(vals)}`;
             drawWaveform();
             
+            // Re-render KaTeX math
             if (typeof renderMathInElement === 'function') {
                 renderMathInElement(document.getElementById('stepsContainer'), {
-                    delimiters: [{left: '\\[', right: '\\]', display: true}, {left: '\\(', right: '\\)', display: false}],
+                    delimiters: [
+                        {left: '\\[', right: '\\]', display: true},
+                        {left: '\\(', right: '\\)', display: false}
+                    ],
                     throwOnError: false
                 });
             }
         }
 
+        // Event listeners for sliders
         document.getElementById('betaSlider').addEventListener('input', (e) => { BETA = parseInt(e.target.value); updateAll(); });
         document.getElementById('rbSlider').addEventListener('input', (e) => { RB = parseFloat(e.target.value); updateAll(); });
         document.getElementById('vbeSlider').addEventListener('input', (e) => { VBE = parseFloat(e.target.value); updateAll(); });
@@ -603,10 +351,16 @@
             document.getElementById('betaSlider').value = 110;
             document.getElementById('rbSlider').value = 200;
             document.getElementById('vbeSlider').value = 0.7;
-            BETA = 110; RB = 200; VBE = 0.7;
+            BETA = 110;
+            RB = 200;
+            VBE = 0.7;
             updateAll();
         }
 
+        // Handle window resize
+        window.addEventListener('resize', () => drawWaveform());
+
+        // Initialize on load
         window.onload = () => updateAll();
     </script>
 </body>
