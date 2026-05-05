@@ -165,13 +165,7 @@
             const vals = calculateValues();
             const gain = Math.abs(vals.Av);
             
-            let outputAmplitude = 30;
-            if (gain > 500) outputAmplitude = 70;
-            else if (gain > 300) outputAmplitude = 60;
-            else if (gain > 200) outputAmplitude = 50;
-            else if (gain > 100) outputAmplitude = 45;
-            else if (gain > 50) outputAmplitude = 40;
-            else outputAmplitude = 30;
+let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
