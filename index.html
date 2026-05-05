@@ -3,471 +3,468 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixed Bias BJT Circuit · Fixed Bias Configuration</title>
-    
-    <!-- KaTeX -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
-    
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
+    <title>Fixed Bias BJT - Interactive Waveform</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px 20px; min-height: 100vh; }
-        .textbook { max-width: 1400px; margin: 0 auto; background: rgba(255,255,255,0.95); border-radius: 24px; overflow: hidden; }
-        .header { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 40px; }
-        .header h1 { font-size: 2.5em; margin-bottom: 8px; }
-        .header p { color: #a0c0ff; font-size: 1.2em; }
-        .grid { display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 0; }
-        @media (max-width: 1000px) { .grid { grid-template-columns: 1fr; } }
-        .left-col { padding: 30px; background: white; border-right: 1px solid #e2e8f0; }
-        .right-col { padding: 30px; background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%); }
-        .section-title { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 8px 20px; border-radius: 30px; display: inline-block; margin-bottom: 25px; font-weight: 600; font-size: 0.95em; }
-        .image-container { background: #f8fafc; border-radius: 20px; padding: 20px; margin-bottom: 25px; border: 1px solid #e2e8f0; text-align: center; }
-        .circuit-image { max-width: 100%; height: auto; border-radius: 12px; }
-        .fig-caption { text-align: center; margin-top: 15px; color: #64748b; font-style: italic; }
-        .waveform-container { background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); border-radius: 20px; padding: 20px; margin: 25px 0; }
-        .waveform-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
-        .phase-badge { background: #c41e3a; color: white; padding: 5px 15px; border-radius: 30px; font-size: 0.9em; font-weight: 600; }
-        .phase-badge.saturation { background: #ff6b35; animation: pulse 1s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        .waveform-canvas { width: 100%; height: 180px; background: white; border-radius: 12px; display: block; }
-        .legend { display: flex; gap: 30px; justify-content: center; margin-top: 15px; }
-        .legend-color { width: 20px; height: 3px; border-radius: 3px; }
-        .legend-color.input { background: #3b82f6; }
-        .legend-color.output { background: #ef4444; }
-        .fixed-params { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 20px; padding: 20px; color: white; }
-        .params-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .param-card { background: rgba(255,255,255,0.2); backdrop-filter: blur(10px); padding: 15px; border-radius: 15px; text-align: center; }
-        .param-value { font-size: 1.5em; font-weight: 700; }
-        .slider-panel { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; }
-        .slider-group { margin-bottom: 25px; }
-        .slider-header { display: flex; justify-content: space-between; margin-bottom: 10px; font-weight: 600; }
-        .slider { width: 100%; height: 8px; background: linear-gradient(90deg, #667eea, #764ba2); border-radius: 4px; -webkit-appearance: none; }
-        .slider::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border-radius: 50%; border: 2px solid #667eea; cursor: pointer; }
-        .value-display { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 4px 12px; border-radius: 30px; }
-        .results-card { background: white; border-radius: 20px; padding: 25px; margin-bottom: 25px; }
-        .results-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .result-item { background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); padding: 15px; border-radius: 15px; border-left: 4px solid #667eea; }
-        .result-item .label { font-size: 0.8em; color: #64748b; }
-        .result-item .value { font-size: 1.3em; font-weight: 700; color: #1e293b; }
-        .result-item.warning { border-left-color: #ff6b35; background: #fff5f0; }
-        .steps-card { background: white; border-radius: 20px; padding: 25px; max-height: 550px; overflow-y: auto; }
-        .step { padding: 15px 0; border-bottom: 1px solid #e2e8f0; }
-        .step-header { display: flex; gap: 15px; margin-bottom: 10px; }
-        .step-num { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9em; font-weight: 700; }
-        .katex-block { background: #f8fafc; padding: 12px 16px; border-radius: 12px; margin: 10px 0 0 43px; border-left: 4px solid #667eea; overflow-x: auto; }
-        .note { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin-top: 20px; border-radius: 12px; }
-        .note.error { background: #fee2e2; border-left-color: #dc2626; }
-        .btn { padding: 12px 24px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 30px; cursor: pointer; width: 100%; font-weight: 600; font-size: 1em; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102,126,234,0.4); }
-        footer { background: #1e293b; color: #94a3b8; padding: 20px 40px; text-align: center; }
-        .warning-banner { background: #dc2626; color: white; padding: 10px; border-radius: 12px; margin-bottom: 15px; text-align: center; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+        }
+        h1 { color: #1e3c72; text-align: center; margin-bottom: 10px; }
+        .subtitle { text-align: center; color: #666; margin-bottom: 30px; }
+        
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 800px) {
+            .two-columns { grid-template-columns: 1fr; }
+        }
+        
+        .slider-panel {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .slider-group {
+            margin-bottom: 20px;
+        }
+        
+        .slider-group label {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #667eea;
+            border-radius: 3px;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #667eea;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        
+        .value-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        
+        canvas {
+            width: 100%;
+            height: auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .results {
+            background: #f5f7fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+        
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        
+        .result-card {
+            background: white;
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-card .label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .result-card .value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+        
+        .warning {
+            background: #fee2e2;
+            border-left-color: #dc2626;
+        }
+        
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102,126,234,0.4);
+        }
+        
+        .phase-badge {
+            display: inline-block;
+            background: #c41e3a;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 30px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        
+        .legend-color {
+            width: 24px;
+            height: 3px;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        
+        .legend-color.blue { background: #3b82f6; }
+        .legend-color.red { background: #ef4444; }
     </style>
 </head>
 <body>
-    <div class="textbook">
-        <div class="header">
-            <h1><i class="fas fa-microchip"></i> Fixed Bias BJT Circuit</h1>
-            <p><i class="fas fa-wave-square"></i> Base Bias Configuration · Common Emitter Amplifier</p>
-        </div>
-
-        <div class="grid">
-            <div class="left-col">
-                <div class="section-title">
-                    <i class="fas fa-image"></i> Fixed Bias Circuit
+<div class="container">
+    <h1>🔬 Fixed Bias BJT Circuit (Base Bias)</h1>
+    <div class="subtitle">V<sub>CC</sub> = 28V &nbsp;|&nbsp; R<sub>C</sub> = 4.7kΩ &nbsp;|&nbsp; Common Emitter</div>
+    
+    <div class="two-columns">
+        <!-- Left Column - Controls -->
+        <div>
+            <div class="slider-panel">
+                <h3>🎮 Control Panel</h3>
+                
+                <div class="slider-group">
+                    <label>
+                        <span>🔵 Current Gain <strong>β</strong> (h<sub>FE</sub>)</span>
+                        <span class="value-badge" id="betaVal">110</span>
+                    </label>
+                    <input type="range" id="betaSlider" min="50" max="300" value="110" step="1">
                 </div>
                 
-                <div class="image-container">
-                    <svg width="100%" height="250" viewBox="0 0 500 250" style="background: #f8fafc; border-radius: 12px;">
-                        <!-- VCC -->
-                        <text x="420" y="30" font-size="14" font-weight="bold">V<sub>CC</sub> = 28V</text>
-                        <line x1="420" y1="35" x2="420" y2="60" stroke="black" stroke-width="2"/>
-                        <circle cx="420" cy="35" r="3" fill="black"/>
-                        
-                        <!-- RC -->
-                        <rect x="395" y="60" width="50" height="30" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="405" y="80" font-size="12">R<sub>C</sub></text>
-                        <text x="405" y="95" font-size="10">4.7kΩ</text>
-                        <line x1="420" y1="60" x2="420" y2="90" stroke="black" stroke-width="2"/>
-                        <line x1="395" y1="90" x2="445" y2="90" stroke="black" stroke-width="2"/>
-                        
-                        <!-- Transistor -->
-                        <line x1="420" y1="90" x2="420" y2="110" stroke="black" stroke-width="2"/>
-                        <line x1="395" y1="120" x2="445" y2="110" stroke="black" stroke-width="2"/>
-                        <line x1="420" y1="110" x2="420" y2="150" stroke="black" stroke-width="2"/>
-                        <circle cx="420" cy="120" r="15" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="410" y="118" font-size="10" font-style="italic">Q1</text>
-                        <line x1="405" y1="125" x2="395" y2="135" stroke="black" stroke-width="2"/>
-                        
-                        <!-- Base resistor -->
-                        <rect x="320" y="105" width="50" height="30" fill="none" stroke="black" stroke-width="2"/>
-                        <text x="328" y="125" font-size="12">R<sub>B</sub></text>
-                        <line x1="395" y1="120" x2="370" y2="120" stroke="black" stroke-width="2"/>
-                        <line x1="320" y1="120" x2="280" y2="120" stroke="black" stroke-width="2"/>
-                        
-                        <!-- Ground at emitter -->
-                        <line x1="420" y1="150" x2="420" y2="170" stroke="black" stroke-width="2"/>
-                        <line x1="400" y1="170" x2="440" y2="170" stroke="black" stroke-width="2"/>
-                        <line x1="410" y1="176" x2="430" y2="176" stroke="black" stroke-width="2"/>
-                        <text x="435" y="185" font-size="12">GND</text>
-                        
-                        <!-- VBB label -->
-                        <text x="250" y="115" font-size="12" fill="#666">V<sub>BB</sub> = V<sub>CC</sub></text>
-                    </svg>
-                    <div class="fig-caption">
-                        <i class="fas fa-book-open"></i> Fixed Bias Circuit: V<sub>CC</sub> = 28V, R<sub>C</sub> = 4.7kΩ
-                    </div>
+                <div class="slider-group">
+                    <label>
+                        <span>🟠 Base Resistor <strong>R<sub>B</sub></strong></span>
+                        <span class="value-badge" id="rbVal">200 kΩ</span>
+                    </label>
+                    <input type="range" id="rbSlider" min="50" max="500" value="200" step="5">
                 </div>
-
-                <div class="waveform-container">
-                    <div class="waveform-header">
-                        <span class="waveform-title"><i class="fas fa-chart-line"></i> Input/Output Waveforms</span>
-                        <span class="phase-badge" id="phaseBadge">180° Phase Shift</span>
-                    </div>
-                    <canvas id="waveformCanvas" width="500" height="180" style="width:100%; height:auto; background:white; border-radius:12px"></canvas>
-                    <div class="legend">
-                        <div class="legend-item"><div class="legend-color input"></div><span>V<sub>in</sub> (Base Input)</span></div>
-                        <div class="legend-item"><div class="legend-color output"></div><span>V<sub>out</sub> (Collector Output)</span></div>
-                    </div>
+                
+                <div class="slider-group">
+                    <label>
+                        <span>🟢 V<sub>BE</sub> (Silicon)</span>
+                        <span class="value-badge" id="vbeVal">0.70 V</span>
+                    </label>
+                    <input type="range" id="vbeSlider" min="0.5" max="0.9" value="0.7" step="0.01">
                 </div>
-
-                <div class="fixed-params">
-                    <h3><i class="fas fa-cogs"></i> Fixed Parameters</h3>
-                    <div class="params-grid">
-                        <div class="param-card"><div class="param-label">V<sub>CC</sub></div><div class="param-value">28 V</div></div>
-                        <div class="param-card"><div class="param-label">R<sub>C</sub></div><div class="param-value">4.7 kΩ</div></div>
-                    </div>
-                </div>
+                
+                <button onclick="resetValues()">⟳ Reset to Default</button>
             </div>
-
-            <div class="right-col">
-                <div class="section-title"><i class="fas fa-sliders-h"></i> Interactive Analysis</div>
-
-                <div class="slider-panel">
-                    <h3><i class="fas fa-tachometer-alt"></i> Control Panel</h3>
-
-                    <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-chart-bar"></i> Current Gain <strong>β</strong></span><span class="value-display" id="betaValue">110</span></div>
-                        <input type="range" id="betaSlider" class="slider" min="50" max="300" value="110" step="1">
-                    </div>
-
-                    <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-resistance"></i> Base Resistor <strong>R<sub>B</sub></strong></span><span class="value-display" id="rbValue">220 kΩ</span></div>
-                        <input type="range" id="rbSlider" class="slider" min="100" max="500" value="220" step="5">
-                    </div>
-
-                    <div class="slider-group">
-                        <div class="slider-header"><span><i class="fas fa-car-battery"></i> Base-Emitter Voltage <strong>V<sub>BE</sub></strong></span><span class="value-display" id="vbeValue">0.70 V</span></div>
-                        <input type="range" id="vbeSlider" class="slider" min="0.5" max="0.9" value="0.7" step="0.01">
-                    </div>
-
-                    <button class="btn" onclick="resetSliders()"><i class="fas fa-undo-alt"></i> Reset to Default Values</button>
-                </div>
-
-                <div class="results-card">
-                    <h3><i class="fas fa-calculator"></i> Calculated Values</h3>
-                    <div class="results-grid" id="resultsGrid"></div>
-                </div>
-
-                <div class="steps-card" id="stepsContainer">
-                    <h3><i class="fas fa-list-ol"></i> Step-by-Step Solution</h3>
-                </div>
+            
+            <div class="results">
+                <h3>📊 Calculated Values</h3>
+                <div class="results-grid" id="resultsGrid"></div>
             </div>
         </div>
-
-        <footer>
-            <i class="fas fa-microchip"></i> Fixed Bias BJT Simulator · V<sub>T</sub> = 26mV at 25°C
-        </footer>
+        
+        <!-- Right Column - Waveform -->
+        <div>
+            <div class="phase-badge" id="phaseBadge">⏪ 180° Phase Shift</div>
+            <canvas id="waveCanvas" width="550" height="200" style="width:100%; height:auto; background:#fff; border-radius:12px; border:1px solid #ddd"></canvas>
+            <div class="legend">
+                <div><span class="legend-color blue"></span> V<sub>in</sub> (Input - ثابت)</div>
+                <div><span class="legend-color red"></span> V<sub>out</sub> (Output - يتغير مع الكسب!)</div>
+            </div>
+            <div style="margin-top: 15px; text-align: center; font-size: 14px; color: #666;">
+                ⚡ كلما زاد الكسب |A<sub>v</sub>| → الموجة الحمراء تكبر<br>
+                ⚡ كلما قل الكسب → الموجة الحمراء تصغر
+            </div>
+        </div>
     </div>
+</div>
 
-    <script>
-        // Fixed parameters
-        const VCC = 28;
-        const RC = 4.7;
-        const VT = 0.026;
+<script>
+    // Constants
+    const VCC = 28;      // Volts
+    const RC = 4.7;      // kΩ
+    const VT = 0.026;    // Thermal voltage
+    
+    // Variables
+    let beta = 110;
+    let RB = 200;        // kΩ
+    let VBE = 0.7;       // Volts
+    
+    // Get canvas
+    const canvas = document.getElementById('waveCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size
+    canvas.width = 550;
+    canvas.height = 200;
+    
+    function calculate() {
+        // Step 1: Base Current (mA)
+        const IB_mA = (VCC - VBE) / RB;
+        const IB_uA = IB_mA * 1000;
         
-        // Variable parameters
-        let BETA = 110;
-        let RB = 220;
-        let VBE = 0.7;
-
-        const canvas = document.getElementById('waveformCanvas');
-        const ctx = canvas.getContext('2d');
+        // Step 2: Collector Current (mA)
+        const IC = beta * IB_mA;
         
-        // Set canvas dimensions properly
-        function resizeCanvas() {
-            const container = canvas.parentElement;
-            const width = container.clientWidth - 40;
-            canvas.width = Math.min(width, 500);
-            canvas.height = 180;
-            drawWaveform();
+        // Step 3: Collector Voltage (V)
+        const VC = VCC - (IC * RC);
+        
+        // Step 4: VCE (Emitter grounded)
+        const VCE = VC;
+        
+        // Step 5: Transconductance (S)
+        const gm = IC / VT;
+        
+        // Step 6: Voltage Gain
+        const Av = -gm * RC;
+        
+        // Step 7: Power
+        const PC = VCE * IC;
+        
+        // Check saturation
+        const isSaturated = VCE < 0.3;
+        const isNearSaturation = VCE < 1 && VCE >= 0.3;
+        
+        return { IB_uA, IC, VC, VCE, gm, Av, PC, isSaturated, isNearSaturation };
+    }
+    
+    function drawWaveform() {
+        const vals = calculate();
+        const gain = Math.abs(vals.Av);
+        
+        // 🔥 KEY CHANGE: Output amplitude is DIRECTLY proportional to gain
+        // When gain is small -> small red wave
+        // When gain is large -> big red wave
+        let outputAmplitude = gain / 3;
+        
+        // Limit to reasonable visual range
+        outputAmplitude = Math.min(70, Math.max(5, outputAmplitude));
+        
+        // Input amplitude (fixed for reference)
+        const inputAmplitude = 18;
+        const centerY = canvas.height / 2;
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw grid
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 0.5;
+        for (let i = 0; i <= 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * canvas.width / 4, 0);
+            ctx.lineTo(i * canvas.width / 4, canvas.height);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i * canvas.height / 4);
+            ctx.lineTo(canvas.width, i * canvas.height / 4);
+            ctx.stroke();
         }
         
-        window.addEventListener('resize', resizeCanvas);
-
-        function calculateValues() {
-            const IB_mA = (VCC - VBE) / RB;
-            const IB_uA = IB_mA * 1000;
-            const IC = BETA * IB_mA;
-            const IE = IC;
-            const VC = VCC - (IC * RC);
-            const VCE = VC;
-            const gm = IC / VT;
-            const Av = -gm * RC;
-            const PC = VCE * IC;
-            
-            // Check saturation
-            const isSaturated = VCE < 0.3;
-            const isNearSaturation = VCE < 1 && VCE >= 0.3;
-            
-            return { IB_uA, IB_mA, IC, IE, VC, VCE, gm, Av, RB, PC, isSaturated, isNearSaturation };
+        // Draw zero line
+        ctx.beginPath();
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([8, 6]);
+        ctx.moveTo(0, centerY);
+        ctx.lineTo(canvas.width, centerY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        // Draw INPUT waveform (BLUE) - always the same size
+        ctx.beginPath();
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2.5;
+        for (let x = 0; x <= canvas.width; x++) {
+            let t = (x / canvas.width) * 4 * Math.PI;
+            let y = centerY + inputAmplitude * Math.sin(t);
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
         }
-
-        function drawWaveform() {
-            const vals = calculateValues();
-            const gain = Math.abs(vals.Av);
-            
-            // Constrain gain for display
-            let displayGain = Math.min(gain, 200);
-            
-            // Output amplitude proportional to gain
-            let outputAmp = displayGain / 2.5;
-            outputAmp = Math.min(65, Math.max(8, outputAmp));
-            
-            // Input amplitude (fixed for reference)
-            const inputAmp = 18;
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grid
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i <= 4; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * (canvas.width/4), 0);
-                ctx.lineTo(i * (canvas.width/4), canvas.height);
-                ctx.stroke();
-            }
-            for (let i = 0; i <= 4; i++) {
-                ctx.beginPath();
-                ctx.moveTo(0, i * (canvas.height/4));
-                ctx.lineTo(canvas.width, i * (canvas.height/4));
-                ctx.stroke();
-            }
-            
-            // Zero line
-            const centerY = canvas.height / 2;
-            ctx.beginPath();
-            ctx.strokeStyle = '#94a3b8';
-            ctx.lineWidth = 1;
-            ctx.setLineDash([5, 5]);
-            ctx.moveTo(0, centerY);
-            ctx.lineTo(canvas.width, centerY);
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // Draw waveforms
-            const steps = canvas.width;
-            
-            // Input waveform (blue) - fixed amplitude
-            ctx.beginPath();
-            ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 2.5;
-            for (let x = 0; x <= steps; x++) {
-                const t = (x / steps) * 4 * Math.PI;
-                const y = centerY + inputAmp * Math.sin(t);
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // Output waveform (red) - amplitude depends on gain
-            ctx.beginPath();
-            ctx.strokeStyle = '#ef4444';
-            ctx.lineWidth = 2.5;
-            
-            // If saturated, show clipping
-            const isClipping = vals.isSaturated || vals.isNearSaturation;
-            
-            for (let x = 0; x <= steps; x++) {
-                const t = (x / steps) * 4 * Math.PI;
-                let y = centerY + outputAmp * Math.sin(t + Math.PI);
-                
-                if (isClipping && outputAmp > 40) {
-                    // Clipping effect
-                    y = Math.min(centerY + 60, Math.max(centerY - 60, y));
-                }
-                
-                y = Math.min(canvas.height - 5, Math.max(5, y));
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // Labels
-            ctx.font = 'bold 11px Inter, sans-serif';
-            ctx.fillStyle = '#3b82f6';
-            ctx.fillText('V_in (Base) ~ 10mVpp', 10, centerY - inputAmp - 5);
-            ctx.fillStyle = '#ef4444';
-            ctx.fillText(`V_out (Collector) |A_v| = ${gain.toFixed(1)}`, 10, centerY - outputAmp - 5);
-            
-            // Gain bar
-            const barWidth = Math.min(80, gain / 2);
-            ctx.fillStyle = '#667eea';
-            ctx.fillRect(canvas.width - 90, 10, barWidth, 6);
-            ctx.fillStyle = '#1e293b';
-            ctx.font = 'bold 10px Inter';
-            ctx.fillText(`Gain: ${gain.toFixed(1)}`, canvas.width - 90, 25);
-            
-            // Saturation warning on canvas
-            if (vals.isSaturated) {
-                ctx.fillStyle = '#dc2626';
-                ctx.font = 'bold 10px Inter';
-                ctx.fillText('⚠️ SATURATION!', canvas.width - 80, canvas.height - 5);
-            }
+        ctx.stroke();
+        
+        // Draw OUTPUT waveform (RED) - size changes with gain!
+        ctx.beginPath();
+        ctx.strokeStyle = '#ef4444';
+        ctx.lineWidth = 2.5;
+        for (let x = 0; x <= canvas.width; x++) {
+            let t = (x / canvas.width) * 4 * Math.PI;
+            // 180° phase shift (add PI)
+            let y = centerY + outputAmplitude * Math.sin(t + Math.PI);
+            // Clamp to canvas edges
+            y = Math.min(canvas.height - 8, Math.max(8, y));
+            if (x === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
         }
-
-        function updateResults(vals) {
-            const saturationClass = vals.isSaturated ? 'warning' : '';
-            const saturationText = vals.isSaturated ? ' ⚠️ SATURATED!' : (vals.isNearSaturation ? ' ⚠️ Near Saturation' : '');
-            
-            document.getElementById('resultsGrid').innerHTML = `
-                <div class="result-item ${vals.isSaturated ? 'warning' : ''}">
-                    <div class="label">Base Current I<sub>B</sub></div>
-                    <div class="value">${vals.IB_uA.toFixed(2)} μA</div>
-                </div>
-                <div class="result-item ${vals.isSaturated ? 'warning' : ''}">
-                    <div class="label">Collector Current I<sub>C</sub></div>
-                    <div class="value">${vals.IC.toFixed(3)} mA</div>
-                </div>
-                <div class="result-item">
-                    <div class="label">Emitter Current I<sub>E</sub></div>
-                    <div class="value">${vals.IE.toFixed(3)} mA</div>
-                </div>
-                <div class="result-item ${vals.isSaturated ? 'warning' : ''}">
-                    <div class="label">Collector Voltage V<sub>C</sub></div>
-                    <div class="value">${vals.VC.toFixed(2)} V${saturationText}</div>
-                </div>
-                <div class="result-item ${vals.isSaturated ? 'warning' : ''}">
-                    <div class="label">V<sub>CE</sub></div>
-                    <div class="value">${vals.VCE.toFixed(2)} V</div>
-                </div>
-                <div class="result-item">
-                    <div class="label">Transconductance g<sub>m</sub></div>
-                    <div class="value">${vals.gm.toFixed(3)} S</div>
-                </div>
-                <div class="result-item">
-                    <div class="label">Voltage Gain A<sub>v</sub></div>
-                    <div class="value">${vals.Av.toFixed(2)} V/V</div>
-                </div>
-                <div class="result-item">
-                    <div class="label">Base Resistor R<sub>B</sub></div>
-                    <div class="value">${vals.RB} kΩ</div>
-                </div>
-                <div class="result-item">
-                    <div class="label">Power Dissipation P<sub>C</sub></div>
-                    <div class="value">${vals.PC.toFixed(2)} mW</div>
-                </div>
-            `;
-            
-            // Update phase badge
-            const badge = document.getElementById('phaseBadge');
-            if (vals.isSaturated) {
-                badge.innerHTML = '⚠️ SATURATION MODE (Clipping)';
-                badge.classList.add('saturation');
-            } else if (vals.isNearSaturation) {
-                badge.innerHTML = '⚠️ Near Saturation - Reduce β or Increase R_B';
-                badge.classList.add('saturation');
-            } else {
-                badge.innerHTML = '180° Phase Shift (Active Region)';
-                badge.classList.remove('saturation');
-            }
+        ctx.stroke();
+        
+        // Labels
+        ctx.font = 'bold 12px Arial';
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillText('V_in (Base) - Fixed Reference', 10, centerY - inputAmplitude - 3);
+        
+        ctx.fillStyle = '#ef4444';
+        ctx.fillText(`V_out (Collector) |A_v| = ${gain.toFixed(1)}`, 10, centerY - outputAmplitude - 3);
+        
+        // Gain bar visualization
+        const barWidth = Math.min(100, gain);
+        ctx.fillStyle = '#667eea';
+        ctx.fillRect(canvas.width - 120, 12, barWidth, 8);
+        ctx.fillStyle = '#1e293b';
+        ctx.font = '11px Arial';
+        ctx.fillText(`Gain: ${gain.toFixed(1)}`, canvas.width - 120, 28);
+        
+        // Saturation warning
+        if (vals.isSaturated) {
+            ctx.fillStyle = '#dc2626';
+            ctx.font = 'bold 11px Arial';
+            ctx.fillText('⚠️ SATURATION! Increase R_B', canvas.width - 160, canvas.height - 8);
+        } else if (vals.isNearSaturation) {
+            ctx.fillStyle = '#f59e0b';
+            ctx.font = '11px Arial';
+            ctx.fillText('⚠️ Near Saturation', canvas.width - 130, canvas.height - 8);
         }
-
-        function generateSteps(vals) {
-            const saturationWarning = vals.isSaturated ? `
-                <div class="note error">
-                    <i class="fas fa-exclamation-triangle"></i> <strong>⚠️ TRANSISTOR IN SATURATION!</strong><br>
-                    V<sub>CE</sub> = ${vals.VCE.toFixed(2)}V is below 0.3V. The transistor is fully ON and cannot amplify properly.<br>
-                    <strong>Solution:</strong> Increase R<sub>B</sub> to > ${((VCC - VBE) * BETA / 0.3 * RC).toFixed(0)} kΩ or reduce β.
-                </div>
-            ` : (vals.isNearSaturation ? `
-                <div class="note">
-                    <i class="fas fa-info-circle"></i> <strong>Note:</strong> Transistor is near saturation.<br>
-                    For proper amplification, V<sub>CE</sub> should be > 1V. Try increasing R<sub>B</sub>.
-                </div>
-            ` : '');
-            
-            return `
-                <div class="step">
-                    <div class="step-header"><span class="step-num">1</span><span>Base Current</span></div>
-                    <div class="katex-block">\\[I_B = \\frac{V_{CC} - V_{BE}}{R_B} = \\frac{${VCC} - ${VBE}}{${RB} \\times 10^3} = ${vals.IB_uA.toFixed(2)} \\text{ μA}\\]</div>
-                </div>
-                
-                <div class="step">
-                    <div class="step-header"><span class="step-num">2</span><span>Collector Current</span></div>
-                    <div class="katex-block">\\[I_C = \\beta \\times I_B = ${BETA} \\times ${vals.IB_mA.toFixed(5)} = ${vals.IC.toFixed(3)} \\text{ mA}\\]</div>
-                </div>
-                
-                <div class="step">
-                    <div class="step-header"><span class="step-num">3</span><span>Collector Voltage</span></div>
-                    <div class="katex-block">\\[V_C = V_{CC} - I_C R_C = ${VCC} - (${vals.IC.toFixed(3)} \\times ${RC}) = ${vals.VC.toFixed(2)} \\text{ V}\\]</div>
-                </div>
-                
-                <div class="step">
-                    <div class="step-header"><span class="step-num">4</span><span>V<sub>CE</sub></span></div>
-                    <div class="katex-block">\\[V_{CE} = V_C - V_E = ${vals.VC.toFixed(2)} - 0 = ${vals.VCE.toFixed(2)} \\text{ V}\\]</div>
-                </div>
-                
-                <div class="step">
-                    <div class="step-header"><span class="step-num">5</span><span>Voltage Gain</span></div>
-                    <div class="katex-block">\\[A_v = -\\frac{I_C}{V_T} \\times R_C = -\\frac{${vals.IC.toFixed(3)}}{0.026} \\times ${RC} = ${vals.Av.toFixed(2)} \\text{ V/V}\\]</div>
-                </div>
-                
-                ${saturationWarning}
-            `;
+    }
+    
+    function updateUI() {
+        const vals = calculate();
+        const gain = Math.abs(vals.Av);
+        
+        // Update slider displays
+        document.getElementById('betaVal').innerText = beta;
+        document.getElementById('rbVal').innerText = RB + ' kΩ';
+        document.getElementById('vbeVal').innerText = VBE.toFixed(2) + ' V';
+        
+        // Update phase badge
+        const badge = document.getElementById('phaseBadge');
+        if (vals.isSaturated) {
+            badge.innerHTML = '⚠️ SATURATION MODE - Amplifier Not Working!';
+            badge.style.background = '#dc2626';
+        } else if (vals.isNearSaturation) {
+            badge.innerHTML = '⚠️ Near Saturation - Increase R_B';
+            badge.style.background = '#f59e0b';
+        } else {
+            badge.innerHTML = '⏪ 180° Phase Shift | Active Region';
+            badge.style.background = '#c41e3a';
         }
-
-        function updateAll() {
-            document.getElementById('betaValue').innerText = BETA;
-            document.getElementById('rbValue').innerText = RB + ' kΩ';
-            document.getElementById('vbeValue').innerText = VBE.toFixed(2) + ' V';
-            
-            const vals = calculateValues();
-            updateResults(vals);
-            document.getElementById('stepsContainer').innerHTML = `<h3 style="margin-bottom:20px;"><i class="fas fa-list-ol"></i> Step-by-Step Solution</h3>${generateSteps(vals)}`;
-            drawWaveform();
-            
-            if (typeof renderMathInElement === 'function') {
-                renderMathInElement(document.getElementById('stepsContainer'), {
-                    delimiters: [
-                        {left: '\\[', right: '\\]', display: true},
-                        {left: '\\(', right: '\\)', display: false}
-                    ],
-                    throwOnError: false
-                });
-            }
-        }
-
-        document.getElementById('betaSlider').addEventListener('input', (e) => { BETA = parseInt(e.target.value); updateAll(); });
-        document.getElementById('rbSlider').addEventListener('input', (e) => { RB = parseFloat(e.target.value); updateAll(); });
-        document.getElementById('vbeSlider').addEventListener('input', (e) => { VBE = parseFloat(e.target.value); updateAll(); });
-
-        function resetSliders() {
-            document.getElementById('betaSlider').value = 110;
-            document.getElementById('rbSlider').value = 220;
-            document.getElementById('vbeSlider').value = 0.7;
-            BETA = 110;
-            RB = 220;
-            VBE = 0.7;
-            updateAll();
-        }
-
-        resizeCanvas();
-        updateAll();
-    </script>
+        
+        // Update results grid
+        const saturationClass = vals.isSaturated ? 'warning' : '';
+        document.getElementById('resultsGrid').innerHTML = `
+            <div class="result-card ${vals.isSaturated ? 'warning' : ''}">
+                <div class="label">Base Current I<sub>B</sub></div>
+                <div class="value">${vals.IB_uA.toFixed(2)} μA</div>
+            </div>
+            <div class="result-card ${vals.isSaturated ? 'warning' : ''}">
+                <div class="label">Collector Current I<sub>C</sub></div>
+                <div class="value">${vals.IC.toFixed(2)} mA</div>
+            </div>
+            <div class="result-card ${vals.isSaturated ? 'warning' : ''}">
+                <div class="label">Collector Voltage V<sub>C</sub></div>
+                <div class="value">${vals.VC.toFixed(2)} V</div>
+            </div>
+            <div class="result-card ${vals.isSaturated ? 'warning' : ''}">
+                <div class="label">V<sub>CE</sub></div>
+                <div class="value">${vals.VCE.toFixed(2)} V</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Transconductance g<sub>m</sub></div>
+                <div class="value">${vals.gm.toFixed(3)} S</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Voltage Gain A<sub>v</sub></div>
+                <div class="value">${vals.Av.toFixed(1)} V/V</div>
+            </div>
+            <div class="result-card">
+                <div class="label">|A<sub>v</sub>| (Magnitude)</div>
+                <div class="value">${gain.toFixed(1)} V/V</div>
+            </div>
+            <div class="result-card">
+                <div class="label">Power P<sub>C</sub></div>
+                <div class="value">${vals.PC.toFixed(1)} mW</div>
+            </div>
+        `;
+        
+        // Redraw waveform
+        drawWaveform();
+    }
+    
+    // Event listeners
+    document.getElementById('betaSlider').addEventListener('input', (e) => {
+        beta = parseInt(e.target.value);
+        updateUI();
+    });
+    
+    document.getElementById('rbSlider').addEventListener('input', (e) => {
+        RB = parseInt(e.target.value);
+        updateUI();
+    });
+    
+    document.getElementById('vbeSlider').addEventListener('input', (e) => {
+        VBE = parseFloat(e.target.value);
+        updateUI();
+    });
+    
+    function resetValues() {
+        document.getElementById('betaSlider').value = 110;
+        document.getElementById('rbSlider').value = 200;
+        document.getElementById('vbeSlider').value = 0.7;
+        beta = 110;
+        RB = 200;
+        VBE = 0.7;
+        updateUI();
+    }
+    
+    // Initial draw
+    updateUI();
+</script>
 </body>
 </html>
