@@ -152,6 +152,7 @@
         const VCC = 28;      // Supply voltage (volts)
         const RC = 4.7;      // Collector resistor (kΩ)
         const VT = 0.026;    // Thermal voltage at 25°C (26mV)
+        const VIN_AMPLITUDE = 0.01;  // 10mV input signal amplitude
         
         // Variable parameters (user adjustable)
         let BETA = 110;      // Current gain
@@ -160,63 +161,6 @@
 
         const canvas = document.getElementById('waveformCanvas');
         const ctx = canvas.getContext('2d');
-
-        function drawWaveform() {
-            const vals = calculateValues();
-            const gain = Math.abs(vals.Av);
-            
-let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw grid
-            ctx.strokeStyle = '#e2e8f0';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i <= 5; i++) {
-                ctx.beginPath();
-                ctx.moveTo(i * 100, 0);
-                ctx.lineTo(i * 100, canvas.height);
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.moveTo(0, i * 36);
-                ctx.lineTo(canvas.width, i * 36);
-                ctx.stroke();
-            }
-            
-            // Input waveform (blue) - base signal
-            ctx.beginPath();
-            ctx.strokeStyle = '#3b82f6';
-            ctx.lineWidth = 3;
-            for (let x = 0; x < canvas.width; x++) {
-                let t = (x / canvas.width) * 4 * Math.PI;
-                let y = 90 + 30 * Math.sin(t);
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // Output waveform (red) - collector signal with 180° phase shift
-            ctx.beginPath();
-            ctx.strokeStyle = '#ef4444';
-            ctx.lineWidth = 3;
-            for (let x = 0; x < canvas.width; x++) {
-                let t = (x / canvas.width) * 4 * Math.PI;
-                let y = 90 + outputAmplitude * Math.sin(t + Math.PI);
-                if (x === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // Labels
-            ctx.font = 'bold 12px Inter, sans-serif';
-            ctx.fillStyle = '#3b82f6';
-            ctx.fillText('V_in (Base)', 10, 40);
-            ctx.fillStyle = '#ef4444';
-            ctx.fillText('V_out (Collector)', 10, 140);
-            ctx.font = 'bold 14px Inter, sans-serif';
-            ctx.fillStyle = '#1e293b';
-            ctx.fillText(`|A_v| = ${gain.toFixed(1)}`, canvas.width - 120, 30);
-        }
 
         function calculateValues() {
             // Step 1: Base Current IB = (VCC - VBE) / RB
@@ -245,16 +189,116 @@ let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
             // Also calculate power dissipation
             const PC = VCE * IC;               // mW (collector power)
             
-            return { IB_uA, IB_mA, IC, IE, VC, VCE, gm, Av, RB, PC };
+            // Check for saturation
+            const isSaturated = VCE < 0.3;
+            
+            return { IB_uA, IB_mA, IC, IE, VC, VCE, gm, Av, RB, PC, isSaturated };
+        }
+
+        function drawWaveform() {
+            const vals = calculateValues();
+            const gain = Math.abs(vals.Av);
+            
+            // Calculate real output amplitude based on actual gain
+            let outputAmplitudeReal = gain * VIN_AMPLITUDE * 100; // *100 to scale to pixels
+            
+            // Limit amplitude to fit in canvas (10-80 pixels)
+            outputAmplitudeReal = Math.min(80, Math.max(10, outputAmplitudeReal));
+            
+            // If transistor is saturated, show clipping
+            const isSaturated = vals.isSaturated || (outputAmplitudeReal >= 75);
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid
+            ctx.strokeStyle = '#e2e8f0';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i <= 5; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * 100, 0);
+                ctx.lineTo(i * 100, canvas.height);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.moveTo(0, i * 36);
+                ctx.lineTo(canvas.width, i * 36);
+                ctx.stroke();
+            }
+            
+            // Draw zero voltage line (middle)
+            ctx.beginPath();
+            ctx.strokeStyle = '#94a3b8';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([5, 5]);
+            ctx.moveTo(0, 90);
+            ctx.lineTo(canvas.width, 90);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // Input waveform (blue) - constant 10mV input
+            ctx.beginPath();
+            ctx.strokeStyle = '#3b82f6';
+            ctx.lineWidth = 3;
+            for (let x = 0; x < canvas.width; x++) {
+                let t = (x / canvas.width) * 4 * Math.PI;
+                let y = 90 + 25 * Math.sin(t);
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Output waveform (red) - amplitude depends on gain
+            ctx.beginPath();
+            ctx.strokeStyle = '#ef4444';
+            ctx.lineWidth = 3;
+            for (let x = 0; x < canvas.width; x++) {
+                let t = (x / canvas.width) * 4 * Math.PI;
+                let y;
+                if (isSaturated && outputAmplitudeReal > 70) {
+                    // Clipping effect for saturated transistor
+                    let pureSignal = outputAmplitudeReal * Math.sin(t + Math.PI);
+                    y = 90 + Math.min(70, Math.max(-70, pureSignal));
+                } else {
+                    y = 90 + outputAmplitudeReal * Math.sin(t + Math.PI);
+                }
+                // Ensure y stays within canvas
+                y = Math.min(175, Math.max(5, y));
+                if (x === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // Labels and info
+            ctx.font = 'bold 12px Inter, sans-serif';
+            ctx.fillStyle = '#3b82f6';
+            ctx.fillText('V_in (Base) ~ 10mV', 10, 40);
+            ctx.fillStyle = '#ef4444';
+            const outputVoltage = (gain * VIN_AMPLITUDE).toFixed(3);
+            ctx.fillText(`V_out (Collector) = ${outputVoltage} V`, 10, 140);
+            ctx.font = 'bold 14px Inter, sans-serif';
+            ctx.fillStyle = '#1e293b';
+            ctx.fillText(`|A_v| = ${gain.toFixed(1)}`, canvas.width - 120, 30);
+            
+            // Warning for saturation
+            if (isSaturated || vals.VCE < 0.5) {
+                ctx.fillStyle = '#c41e3a';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.fillText('⚠️ SATURATION (Clipping) - VCE too low!', canvas.width - 170, 170);
+            } else if (vals.VCE < 1) {
+                ctx.fillStyle = '#f59e0b';
+                ctx.font = 'bold 10px Inter, sans-serif';
+                ctx.fillText('⚠️ Near Saturation Region', canvas.width - 140, 170);
+            }
         }
 
         function updateResults(vals) {
+            const saturationWarning = vals.VCE < 0.5 ? '<span style="color:#c41e3a;"> ⚠️ SATURATION!</span>' : (vals.VCE < 1 ? '<span style="color:#f59e0b;"> ⚠️ Near Saturation</span>' : '');
+            
             document.getElementById('resultsGrid').innerHTML = `
                 <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Base Current I<sub>B</sub></div><div class="value">${vals.IB_uA.toFixed(2)} <span class="unit">μA</span></div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Collector Current I<sub>C</sub></div><div class="value">${vals.IC.toFixed(3)} <span class="unit">mA</span></div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-bolt"></i> Emitter Current I<sub>E</sub></div><div class="value">${vals.IE.toFixed(3)} <span class="unit">mA</span></div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> Collector Voltage V<sub>C</sub></div><div class="value">${vals.VC.toFixed(2)} <span class="unit">V</span></div></div>
-                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> V<sub>CE</sub> (Collector-Emitter)</div><div class="value">${vals.VCE.toFixed(2)} <span class="unit">V</span></div></div>
+                <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> V<sub>CE</sub> (Collector-Emitter)</div><div class="value">${vals.VCE.toFixed(2)} <span class="unit">V</span>${saturationWarning}</div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-wave-square"></i> Transconductance g<sub>m</sub></div><div class="value">${vals.gm.toFixed(3)} <span class="unit">S</span></div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-chart-line"></i> Voltage Gain A<sub>v</sub></div><div class="value">${vals.Av.toFixed(2)} <span class="unit">V/V</span></div></div>
                 <div class="result-item"><div class="label"><i class="fas fa-resistance"></i> Base Resistor R<sub>B</sub></div><div class="value">${vals.RB} <span class="unit">kΩ</span></div></div>
@@ -263,6 +307,17 @@ let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
         }
 
         function generateSteps(vals) {
+            const saturationNote = vals.VCE < 0.3 ? 
+                `<div class="note" style="background:#fee2e2; border-left-color:#c41e3a;">
+                    <i class="fas fa-exclamation-triangle"></i> <strong>⚠️ WARNING: Transistor is in SATURATION region!</strong><br>
+                    V<sub>CE</sub> = ${vals.VCE.toFixed(2)}V is below 0.3V. The transistor is fully ON and cannot amplify properly.<br>
+                    <strong>Solution:</strong> Increase R<sub>B</sub> or decrease β to reduce I<sub>C</sub>.
+                </div>` : (vals.VCE < 1 ?
+                `<div class="note" style="background:#fef3c7; border-left-color:#f59e0b;">
+                    <i class="fas fa-info-circle"></i> <strong>Note:</strong> Transistor is nearing saturation region.
+                    V<sub>CE</sub> = ${vals.VCE.toFixed(2)}V. For proper amplification, V<sub>CE</sub> should be > 1V.
+                </div>` : '');
+            
             return `
                 <div class="step">
                     <div class="step-header"><span class="step-num">1</span><span>Calculate Base Current \\(I_B\\)</span></div>
@@ -302,12 +357,20 @@ let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
                     <div class="katex-block">\\[P_C = V_{CE} \\times I_C = ${vals.VCE.toFixed(2)} \\times ${vals.IC.toFixed(3)} = ${vals.PC.toFixed(2)} \\text{ mW}\\]</div>
                 </div>
                 
+                <div class="step">
+                    <div class="step-header"><span class="step-num">8</span><span>Output Voltage Swing</span></div>
+                    <div class="katex-block">\\[V_{out(pp)} = A_v \\times V_{in(pp)} = ${Math.abs(vals.Av).toFixed(2)} \\times 20\\text{mV} = ${(Math.abs(vals.Av) * 0.02).toFixed(3)} \\text{ V}_{pp}\\]</div>
+                </div>
+                
+                ${saturationNote}
+                
                 <div class="note">
                     <i class="fas fa-info-circle"></i> <strong>Fixed Bias (Base Bias) Characteristics:</strong><br>
                     • <strong>Advantages:</strong> Simple circuit, few components, easy to design<br>
                     • <strong>Disadvantages:</strong> Highly sensitive to β variations, thermally unstable, not suitable for mass production<br>
                     • <strong>Applications:</strong> Basic educational circuits, switching applications<br>
-                    • <strong>Key formula:</strong> \\(I_B = (V_{CC} - V_{BE})/R_B\\) and \\(I_C = \\beta I_B\\)
+                    • <strong>Key formula:</strong> \\(I_B = (V_{CC} - V_{BE})/R_B\\) and \\(I_C = \\beta I_B\\)<br>
+                    • <strong>For proper amplification:</strong> V<sub>CE</sub> should be between 1V and 10V (avoid saturation)
                 </div>
             `;
         }
@@ -323,6 +386,16 @@ let outputAmplitude = Math.min(70, Math.max(20, gain / 5));
             updateResults(vals);
             document.getElementById('stepsContainer').innerHTML = `<h3 style="margin-bottom:20px;"><i class="fas fa-list-ol"></i> Step-by-Step Solution (Fixed Bias)</h3>${generateSteps(vals)}`;
             drawWaveform();
+            
+            // Update phase badge color based on saturation
+            const phaseBadge = document.getElementById('phaseBadge');
+            if (vals.isSaturated || vals.VCE < 0.5) {
+                phaseBadge.style.background = '#c41e3a';
+                phaseBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> SATURATION MODE';
+            } else {
+                phaseBadge.style.background = '#c41e3a';
+                phaseBadge.innerHTML = '<i class="fas fa-arrow-rotate-left"></i> 180° Phase Shift';
+            }
             
             // Re-render KaTeX math
             if (typeof renderMathInElement === 'function') {
